@@ -51,16 +51,17 @@ export const GET = async (req: Request) => {
       });
     }
 
-    config['openaiApiKey'] = getOpenaiApiKey();
+    // API keys are intentionally NOT exposed via GET to prevent leaking secrets
+    config['openaiApiKey'] = getOpenaiApiKey() ? '***configured***' : '';
     config['ollamaApiUrl'] = getOllamaApiEndpoint();
     config['lmStudioApiUrl'] = getLMStudioApiEndpoint();
-    config['anthropicApiKey'] = getAnthropicApiKey();
-    config['groqApiKey'] = getGroqApiKey();
-    config['geminiApiKey'] = getGeminiApiKey();
-    config['deepseekApiKey'] = getDeepseekApiKey();
-    config['aimlApiKey'] = getAimlApiKey();
+    config['anthropicApiKey'] = getAnthropicApiKey() ? '***configured***' : '';
+    config['groqApiKey'] = getGroqApiKey() ? '***configured***' : '';
+    config['geminiApiKey'] = getGeminiApiKey() ? '***configured***' : '';
+    config['deepseekApiKey'] = getDeepseekApiKey() ? '***configured***' : '';
+    config['aimlApiKey'] = getAimlApiKey() ? '***configured***' : '';
     config['customOpenaiApiUrl'] = getCustomOpenaiApiUrl();
-    config['customOpenaiApiKey'] = getCustomOpenaiApiKey();
+    config['customOpenaiApiKey'] = getCustomOpenaiApiKey() ? '***configured***' : '';
     config['customOpenaiModelName'] = getCustomOpenaiModelName();
 
     return Response.json({ ...config }, { status: 200 });
@@ -75,6 +76,10 @@ export const GET = async (req: Request) => {
 
 export const POST = async (req: Request) => {
   try {
+    const { verifyApiToken } = await import('@/lib/authMiddleware');
+    const auth = verifyApiToken(req);
+    if (!auth.authorized) return auth.response!;
+
     const config = await req.json();
 
     const updatedConfig = {

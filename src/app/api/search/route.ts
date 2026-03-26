@@ -70,6 +70,10 @@ const getStreamErrorMessage = (error: unknown) => {
 
 export const POST = async (req: Request) => {
   try {
+    const { verifyApiToken } = await import('@/lib/authMiddleware');
+    const auth = verifyApiToken(req);
+    if (!auth.authorized) return auth.response!;
+
     // Log request origin (only in development)
     if (process.env.NODE_ENV === 'development') {
       const origin = req.headers.get('origin') || 'unknown';

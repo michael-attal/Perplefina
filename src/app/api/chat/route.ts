@@ -338,6 +338,10 @@ const handleHistorySave = async (
 
 export const POST = async (req: Request) => {
   try {
+    const { verifyApiToken } = await import('@/lib/authMiddleware');
+    const auth = verifyApiToken(req);
+    if (!auth.authorized) return auth.response!;
+
     const body = (await req.json()) as Body;
     const { message } = body;
 
